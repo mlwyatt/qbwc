@@ -6,7 +6,7 @@ class QBWC::ActiveRecord::Job < QBWC::Job
     serialize :data
 
     def to_qbwc_job
-      QBWC::ActiveRecord::Job.new(name, enabled, company, worker_class, requests, data)
+      QBWC::ActiveRecord::Job.new(name, enabled, company, worker_class, requests, data, self)
     end
 
   end
@@ -119,7 +119,18 @@ class QBWC::ActiveRecord::Job < QBWC::Job
   end
 
   def self.sort_in_time_order(ary)
-    ary.sort {|a,b| a.find_ar_job.first.created_at <=> b.find_ar_job.first.created_at}
+    ary.sort do |a, b|
+      if a.db_job.nil?
+        a.db_job = a.find_ar_job.first
+      end
+      if b.db_job.nil?
+        b.db_job = b.find_ar_job.first
+      end
+      [
+        10 * (a.db_job.created_at <=> b.db_job.created_at),
+        1 * (a.db_job.id <=> b.db_job.id)
+      ].sum
+    end
   end
 
 end
