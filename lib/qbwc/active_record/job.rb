@@ -20,7 +20,7 @@ class QBWC::ActiveRecord::Job < QBWC::Job
     ar_job.worker_class = worker_class
     ar_job.save!
 
-    jb = self.new(name, enabled, company, worker_class, requests, data)
+    jb = self.new(name, enabled, company, worker_class, requests, data, ar_job)
     unless requests.nil? || requests.empty?
       request_hash = { [nil, company] => [requests].flatten }
 
